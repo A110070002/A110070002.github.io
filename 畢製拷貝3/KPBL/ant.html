@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI取代測驗</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS 样式保持不变 */
+        body {
+            background-image: url('assets/img/asd.jpg');
+            background-size: cover;
+            background-position: center;
+            /* 其他背景相關樣式可以在這裡添加 */
+        }
+
+
+        .container {
+            background-color: rgb(255, 255, 255);
+            padding: 100px;
+            border-radius: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            width: 100%;
+            position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+        
+
+        h1 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .option {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #eee;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            max-width: 80%;
+            text-align: left;
+        }
+
+        .option:hover {
+            background-color: #fdfdfd;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-weight: bold;
+            display: none;
+        }
+        #submitBtn {
+            font-size: 1.2em; /* 再次放大字体 */
+            margin-top: 30px; /* 调整顶部间距 */
+            padding: 20px; /* 增加內邊距 */
+            width: 200px; /* 调整按钮宽度 */
+            height: 100px; /* 调整按钮高度 */
+            display: none; /* 將按鈕初始化為隱藏 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI取代測驗</h1>
+        <div id="questions">
+            <div class="question" id="question1">
+                <p>1. 在你的看法中，哪種職業最可能受到AI取代？</p>
+                <div class="option" onclick="selectOption(10)">A) 邏輯性高、偏向於思考未來趨勢的工作</div>
+                <div class="option" onclick="selectOption(1)">B) 需要大量重複性工作的職業</div>
+                <div class="option" onclick="selectOption(15)">C) 強調人際交流和情感表達的職業</div>
+                <div class="option" onclick="selectOption(5)">D) 需要創造力和獨特見解的職業</div>
+            </div>
+            <div class="question" id="question2" style="display: none;">
+                <p>2. 你對AI對工作市場的影響持何種看法？</p>
+                <div class="option" onclick="selectOption(15)">A) 它將帶來更多機會，因為它可以自動化繁重的工作。</div>
+                <div class="option" onclick="selectOption(10)">B) 它會造成失業率上升，尤其是在特定領域。</div>
+                <div class="option" onclick="selectOption(5)">C) 它可能會改變工作的本質，但不一定是壞事。</div>
+                <div class="option" onclick="selectOption(1)">D) 它會創造新的工作機會，但同時也會取代一些傳統職業。</div>
+            </div>
+            <div class="question" id="question3" style="display: none;">
+                <p>3. 在工作中，你更傾向於什麼類型的任務？</p>
+                <div class="option" onclick="selectOption(5)">A) 需要深度思考和分析的任務</div>
+                <div class="option" onclick="selectOption(10)">B) 需要創意和新思維的任務</div>
+                <div class="option" onclick="selectOption(15)">C) 與他人合作和溝通的任務</div>
+                <div class="option" onclick="selectOption(1)">D) 重複性高、機械性的任務</div>
+            </div>
+            <div class="question" id="question4" style="display: none;">
+                <p>4. 對於AI取代人類工作，你的擔憂程度如何？</p>
+                <div class="option" onclick="selectOption(1)">A) 不太擔心，我相信人類會找到應對方法。</div>
+                <div class="option" onclick="selectOption(15)">B) 我有些擔心，特別是對於特定行業或職業。</div>
+                <div class="option" onclick="selectOption(10)">C) 我非常擔心，我認為這可能會對社會造成嚴重影響。</div>
+                <div class="option" onclick="selectOption(5)">D) 我並不太在意，因為我相信技術的發展會為我們帶來更多機會。</div>
+            </div>
+            <div class="question" id="question5" style="display: none;">
+                <p>5. 在工作中，你更看重哪一個方面？</p>
+                <div class="option" onclick="selectOption(1)">A) 效率和精確度</div>
+                <div class="option" onclick="selectOption(10)">B) 穩定性和可靠性</div>
+                <div class="option" onclick="selectOption(15)">C) 團隊合作和人際關係</div>
+                <div class="option" onclick="selectOption(5)">D) 創新和靈活性</div>
+            </div>
+            <div class="question" id="question6" style="display: none;">
+                <p>6. 如果你的工作被AI取代，你會如何應對？</p>
+                <div class="option" onclick="selectOption(15)">A) 學習新技能以適應新的工作市場。</div>
+                <div class="option" onclick="selectOption(10)">B) 尋找其他類似的工作機會。</div>
+                <div class="option" onclick="selectOption(5)">C) 考慮轉換職業或行業。</div>
+                <div class="option" onclick="selectOption(1)">D) 探索創業或自我就業的機會。</div>
+            </div>
+            <div class="question" id="question7" style="display: none;">
+                <p>7. 對於AI對未來工作的影響，你更傾向於採取何種態度？</p>
+                <div class="option" onclick="selectOption(15)">A) 積極樂觀，相信人類有能力應对任何挑战。</div>
+                <div class="option" onclick="selectOption(10)">B) 小心觀望，希望政府和企業能夠做出明智的決策。</div>
+                <div class="option" onclick="selectOption(5)">C) 憂慮焦慮，認為這可能會對整個社會帶來負面影響。</div>
+                <div class="option" onclick="selectOption(1)">D) 開放態度，相信技術發展帶來的潛在好處。</div>
+            </div>
+        </div>
+        <button id="submitBtn" style="display: none;" onclick="showResult()">提交</button>
+        <div class="result" id="result" style="display: none; font-size: 2em;"></div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let score = 0;
+
+        function selectOption(points) {
+            score += points;
+            document.getElementById(`question${currentQuestion}`).style.display = 'none';
+            currentQuestion++;
+            if (currentQuestion <= 7) {
+                document.getElementById(`question${currentQuestion}`).style.display = 'block';
+            } else {
+                document.getElementById('submitBtn').style.display = 'block';
+            }
+        }
+
+        function showResult() {
+            let result = '';
+            if (score >= 7 && score <= 34) {
+                result = "被AI取代率為20%";
+            } else if (score >= 35 && score <= 50) {
+                result = "被AI取代率為40%";
+            } else if (score >= 51 && score <= 79) {
+                result = "被AI取代率為60%";
+            } else if (score >= 80 && score <= 90) {
+                result = "被AI取代率為80%";
+            } else if (score >= 91 && score <= 105) {
+                result = "被AI取代率為90%";
+            } else {
+                result = "計算失敗";
+            }
+            document.getElementById('result').innerText = "測驗結果：" + result;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
