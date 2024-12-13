@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 圖像挑戰遊戲</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(to bottom, #3a2d63, #447768);
+            color: #ffffff;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        #drawingCanvas {
+            border: 1px solid black;
+            cursor: crosshair;
+            background-color: white;
+        }
+        .comparison-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 10px;
+            gap: 20px;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .image-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+        .image-section img, .image-section canvas {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+        }
+        #prompt {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            margin-top: 10px;
+        }
+        .color-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .color-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid white;
+            cursor: pointer;
+        }
+        #aiImage {
+            opacity: 0;
+            transition: opacity 2s;
+        }
+        #timer {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI 圖像挑戰遊戲</h1>
+    <div id="prompt">題目：按下按鈕生成題目</div>
+    <button onclick="startGame()">開始挑戰</button>
+    <div id="timer">時間剩餘：60 秒</div>
+
+    <div class="comparison-container">
+        <div class="image-section">
+            <h2>AI 生成的圖像</h2>
+            <button onclick="generateAIImage()">生成 AI 圖像</button>
+            <img id="aiImage" src="" alt="AI生成的圖像">
+        </div>
+        <div class="image-section">
+            <h2>你的畫作</h2>
+            <canvas id="drawingCanvas" width="350" height="350"></canvas>
+            <div class="color-buttons">
+                <div class="color-button" style="background: red;" onclick="changeColor('red')"></div>
+                <div class="color-button" style="background: orange;" onclick="changeColor('orange')"></div>
+                <div class="color-button" style="background: yellow;" onclick="changeColor('yellow')"></div>
+                <div class="color-button" style="background: green;" onclick="changeColor('green')"></div>
+                <div class="color-button" style="background: blue;" onclick="changeColor('blue')"></div>
+                <div class="color-button" style="background: indigo;" onclick="changeColor('indigo')"></div>
+                <div class="color-button" style="background: violet;" onclick="changeColor('violet')"></div>
+                <div class="color-button" style="background: black;" onclick="changeColor('black')"></div>
+            </div>
+            <div class="button-container">
+                <button onclick="clearCanvas()">重整畫布</button>
+                <button onclick="downloadCanvas()">下載畫布截圖</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const prompts = ["狗", "貓", "豬", "烏龜", "鳥"];
+        const localImages = {
+            "狗": ["assets/img/dog1.jpg", "assets/img/dog2.jpg", "assets/img/dog3.jpg"],
+            "貓": ["assets/img/cat1.jpg", "assets/img/cat2.jpg", "assets/img/cat3.jpg"],
+            "豬": ["assets/img/pig1.jpg", "assets/img/pig2.jpg", "assets/img/pig3.jpg"],
+            "烏龜": ["assets/img/turtle1.jpg", "assets/img/turtle2.jpg", "assets/img/turtle3.jpg"],
+            "鳥": ["assets/img/bird1.jpg", "assets/img/bird2.jpg", "assets/img/bird3.jpg"]
+        };
+        let currentPrompt = "";
+        let currentColor = "black";
+        let timeLeft = 60;
+        let timerInterval;
+
+        function startGame() {
+            generateRandomPrompt();
+            timeLeft = 60;
+            document.getElementById("timer").innerText = `時間剩餘：${timeLeft} 秒`;
+            clearCanvas();
+            enableDrawing();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById("timer").innerText = `時間剩餘：${timeLeft} 秒`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                disableDrawing();
+                alert("時間到！挑戰結束！");
+            }
+        }
+
+        function generateRandomPrompt() {
+            currentPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+            document.getElementById('prompt').innerText = `題目：${currentPrompt}`;
+        }
+
+        function generateAIImage() {
+            if (!currentPrompt) {
+                alert('請先生成題目！');
+                return;
+            }
+            const imagesForPrompt = localImages[currentPrompt];
+            const randomImage = imagesForPrompt[Math.floor(Math.random() * imagesForPrompt.length)];
+            const aiImage = document.getElementById('aiImage');
+            aiImage.src = randomImage;
+            aiImage.style.opacity = 0;
+            setTimeout(() => {
+                aiImage.style.opacity = 1;
+            }, 100);
+        }
+
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // 新增觸控支援
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDrawing({ offsetX: touch.clientX - canvas.offsetLeft, offsetY: touch.clientY - canvas.offsetTop });
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            draw({ offsetX: touch.clientX - canvas.offsetLeft, offsetY: touch.clientY - canvas.offsetTop });
+        });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopDrawing();
+        });
+
+        function startDrawing(e) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.closePath();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white"; // 設定背景為白色
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function changeColor(color) {
+            currentColor = color;
+        }
+
+        function disableDrawing() {
+            drawing = false;
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+        }
+
+        function enableDrawing() {
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            clearCanvas(); // 確保啟用時畫布為白色
+        }
+
+        function downloadCanvas() {
+            const link = document.createElement('a');
+            link.download = 'my_drawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
